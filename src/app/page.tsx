@@ -1,1825 +1,659 @@
 'use client';
 
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useState } from 'react';
 
-/* ───────────────────────── IMAGE URLS ───────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   SKYVILLA SUDIRMAN — Penthouse Living Redefined
+   A sky-high luxury property website
+   ═══════════════════════════════════════════════════════════════ */
+
 const IMAGES = {
-  hero: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80',
-  skyline: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80',
-  clouds: 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=1920&q=80',
+  hero: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1800&q=80',
+  concept: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80',
   penthouse: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80',
   duplex: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
   skyGarden: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
-  pool: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1200&q=80',
+  pool: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800&q=80',
   lounge: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80',
-  interior: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
-  nightCity: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80',
-  cityView: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
+  helipad: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+  elevator: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
+  spa: 'https://images.unsplash.com/photo-1545389336-cf090694435e?w=800&q=80',
+  cinema: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80',
+  cityView: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=900&q=80',
 };
 
-/* ───────────────────────── INTERSECTION OBSERVER ───────────────────────── */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
+const NAV_LINKS = [
+  { label: 'Concept', href: '#concept' },
+  { label: 'Residences', href: '#villas' },
+  { label: 'Amenities', href: '#amenities' },
+  { label: 'Views', href: '#views' },
+  { label: 'Location', href: '#location' },
+  { label: 'Contact', href: '#contact' },
+];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+const HERO_STATS = [
+  { value: '62', label: 'Floors' },
+  { value: '180', label: 'Residences' },
+  { value: '360°', label: 'Views' },
+  { value: '∞', label: 'Sky Infinity Pool' },
+];
 
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          obs.unobserve(el);
-        }
-      },
-      { threshold }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-
-  return { ref, inView };
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   1. NAVIGATION
-   ═══════════════════════════════════════════════════════════════ */
-function Navigation() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const links = [
-    { label: 'Concept', href: '#concept' },
-    { label: 'Residences', href: '#residences' },
-    { label: 'Amenities', href: '#amenities' },
-    { label: 'Views', href: '#views' },
-    { label: 'Location', href: '#location' },
-    { label: 'Contact', href: '#contact' },
-  ];
-
-  return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: 1000,
-        padding: scrolled ? '14px 40px' : '24px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        background: scrolled ? 'rgba(15, 23, 41, 0.95)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        transition: 'all 0.4s ease',
-        borderBottom: scrolled ? '1px solid rgba(74, 163, 223, 0.15)' : 'none',
-      }}
-    >
-      {/* Logo */}
-      <a
-        href="#"
-        className="font-display"
-        style={{
-          fontSize: '28px',
-          letterSpacing: '8px',
-          color: '#FFFFFF',
-          textDecoration: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-        }}
-      >
-        <span style={{ color: '#D4AF37' }}>SKY</span>VILLA
-      </a>
-
-      {/* Desktop links */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '32px',
-          alignItems: 'center',
-        }}
-        className="hidden md:flex"
-      >
-        {links.map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            className="nav-link"
-            style={{
-              color: 'rgba(255,255,255,0.75)',
-              textDecoration: 'none',
-              fontSize: '12px',
-              letterSpacing: '2.5px',
-              textTransform: 'uppercase',
-              fontWeight: 400,
-            }}
-          >
-            {l.label}
-          </a>
-        ))}
-      </div>
-
-      {/* Mobile hamburger */}
-      <button
-        className="md:hidden"
-        onClick={() => setMenuOpen(!menuOpen)}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px',
-          padding: '4px',
-          zIndex: 1001,
-        }}
-        aria-label="Toggle menu"
-      >
-        <span
-          style={{
-            width: '28px',
-            height: '1.5px',
-            background: '#D4AF37',
-            transition: 'transform 0.3s, opacity 0.3s',
-            transform: menuOpen ? 'rotate(45deg) translateY(7.5px)' : 'none',
-          }}
-        />
-        <span
-          style={{
-            width: '28px',
-            height: '1.5px',
-            background: '#D4AF37',
-            transition: 'opacity 0.3s',
-            opacity: menuOpen ? 0 : 1,
-          }}
-        />
-        <span
-          style={{
-            width: '28px',
-            height: '1.5px',
-            background: '#D4AF37',
-            transition: 'transform 0.3s, opacity 0.3s',
-            transform: menuOpen ? 'rotate(-45deg) translateY(-7.5px)' : 'none',
-          }}
-        />
-      </button>
-
-      {/* Mobile menu overlay */}
-      {menuOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(15, 23, 41, 0.98)',
-            backdropFilter: 'blur(30px)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '28px',
-            zIndex: 999,
-          }}
-        >
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setMenuOpen(false)}
-              className="font-display"
-              style={{
-                color: '#FFFFFF',
-                textDecoration: 'none',
-                fontSize: '32px',
-                letterSpacing: '6px',
-              }}
-            >
-              {l.label}
-            </a>
-          ))}
-        </div>
-      )}
-    </nav>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   2. HERO — FULL-WIDTH DRAMATIC SKYLINE
-   ═══════════════════════════════════════════════════════════════ */
-function Hero() {
-  return (
-    <section
-      style={{
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {/* Background image */}
-      <img
-        src={IMAGES.hero}
-        alt="Jakarta skyline at dusk — towering glass skyscrapers"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: 'center',
-        }}
-      />
-
-      {/* Gradient overlays */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to bottom, rgba(15,23,41,0.7) 0%, rgba(15,23,41,0.3) 40%, rgba(15,23,41,0.6) 80%, #0F1729 100%)',
-        }}
-      />
-
-      {/* Content */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 2,
-          textAlign: 'center',
-          maxWidth: '900px',
-          padding: '0 24px',
-        }}
-      >
-        {/* Eyebrow */}
-        <p
-          className="animate-fade-in-up"
-          style={{
-            fontSize: '13px',
-            letterSpacing: '6px',
-            textTransform: 'uppercase',
-            color: '#D4AF37',
-            marginBottom: '24px',
-            fontWeight: 400,
-            opacity: 1,
-          }}
-        >
-          Jl. Jend. Sudirman &mdash; Jakarta
-        </p>
-
-        {/* Main heading */}
-        <h1
-          className="font-display animate-fade-in-up delay-200"
-          style={{
-            fontSize: 'clamp(56px, 10vw, 120px)',
-            lineHeight: 0.95,
-            letterSpacing: '10px',
-            color: '#FFFFFF',
-            opacity: 1,
-          }}
-        >
-          SKY<span style={{ color: '#D4AF37' }}>VILLA</span>
-        </h1>
-        <h2
-          className="font-display animate-fade-in-up delay-300"
-          style={{
-            fontSize: 'clamp(24px, 4vw, 48px)',
-            letterSpacing: '14px',
-            color: 'rgba(255,255,255,0.6)',
-            marginTop: '8px',
-            fontWeight: 400,
-            opacity: 1,
-          }}
-        >
-          SUDIRMAN
-        </h2>
-
-        {/* Tagline */}
-        <p
-          className="animate-fade-in-up delay-500"
-          style={{
-            fontSize: 'clamp(14px, 1.8vw, 18px)',
-            color: 'rgba(255,255,255,0.55)',
-            marginTop: '32px',
-            letterSpacing: '3px',
-            fontWeight: 300,
-            lineHeight: 1.6,
-            opacity: 1,
-          }}
-        >
-          Where the sky becomes your living room
-        </p>
-
-        {/* CTA Button */}
-        <div className="animate-fade-in-up delay-700" style={{ marginTop: '48px', opacity: 1 }}>
-          <a
-            href="#concept"
-            className="animate-gentle-pulse"
-            style={{
-              display: 'inline-block',
-              padding: '16px 48px',
-              background: 'linear-gradient(135deg, #D4AF37, #E8CC6E)',
-              color: '#0F1729',
-              textDecoration: 'none',
-              fontSize: '13px',
-              letterSpacing: '4px',
-              textTransform: 'uppercase',
-              fontWeight: 600,
-              borderRadius: '50px',
-              transition: 'transform 0.3s ease',
-            }}
-          >
-            Discover More
-          </a>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div
-        className="animate-fade-in-up delay-800"
-        style={{
-          position: 'absolute',
-          bottom: '40px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '10px',
-          zIndex: 10,
-          opacity: 1,
-        }}
-      >
-        <span
-          style={{
-            fontSize: '10px',
-            letterSpacing: '4px',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.4)',
-          }}
-        >
-          Scroll
-        </span>
-        <div
-          className="animate-scroll-line"
-          style={{
-            width: '1px',
-            height: '40px',
-            background: 'linear-gradient(to bottom, #D4AF37, transparent)',
-          }}
-        />
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   3. CONCEPT — LIVING ABOVE THE CLOUDS
-   ═══════════════════════════════════════════════════════════════ */
-function Concept() {
-  const { ref, inView } = useInView();
-
-  return (
-    <section
-      id="concept"
-      ref={ref}
-      style={{
-        background: '#FFFFFF',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '80px 24px',
-        }}
-        className="concept-container"
-      >
-        {/* Eyebrow */}
-        <div
-          className={inView ? 'animate-fade-in-up' : ''}
-          style={{ textAlign: 'center', marginBottom: '20px', opacity: 1 }}
-        >
-          <span
-            style={{
-              fontSize: '12px',
-              letterSpacing: '5px',
-              textTransform: 'uppercase',
-              color: '#4AA3DF',
-              fontWeight: 500,
-            }}
-          >
-            The Vision
-          </span>
-        </div>
-
-        {/* Heading */}
-        <h2
-          className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-          style={{
-            fontSize: 'clamp(36px, 5vw, 64px)',
-            textAlign: 'center',
-            color: '#0F1729',
-            letterSpacing: '4px',
-            lineHeight: 1.05,
-            opacity: 1,
-          }}
-        >
-          LIVING ABOVE <span className="text-gradient-sky">THE CLOUDS</span>
-        </h2>
-
-        {/* Description grid */}
-        <div
-          className="concept-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '48px',
-            marginTop: '56px',
-            alignItems: 'start',
-          }}
-        >
-          {/* Left column — image */}
-          <div
-            className={inView ? 'animate-fade-in-up delay-200' : ''}
-            style={{
-              borderRadius: '20px',
-              overflow: 'hidden',
-              opacity: 1,
-            }}
-          >
-            <img
-              src={IMAGES.clouds}
-              alt="Above the clouds — sky villa concept"
-              style={{
-                width: '100%',
-                height: '420px',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              className="img-zoom"
-            />
-          </div>
-
-          {/* Right column — text */}
-          <div
-            className={inView ? 'animate-fade-in-up delay-300' : ''}
-            style={{ opacity: 1 }}
-          >
-            <p
-              style={{
-                fontSize: '17px',
-                lineHeight: 1.85,
-                color: '#475569',
-                marginBottom: '28px',
-              }}
-            >
-              Skyvilla Sudirman reimagines urban living by placing private villas
-              in the sky. Rising above Jakarta&apos;s most iconic boulevard, each
-              residence is a sanctuary above the city &mdash; where panoramic horizons
-              replace walls and the sky is your backyard.
-            </p>
-            <p
-              style={{
-                fontSize: '17px',
-                lineHeight: 1.85,
-                color: '#475569',
-                marginBottom: '40px',
-              }}
-            >
-              Conceived by internationally acclaimed architects, Skyvilla fuses
-              the freedom of a tropical villa with the prestige of a penthouse.
-              Every detail &mdash; from double-height ceilings to private sky gardens &mdash;
-              is designed to make you feel above it all.
-            </p>
-
-            {/* Stats row */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '40px',
-                flexWrap: 'wrap',
-              }}
-            >
-              {[
-                { number: '62', label: 'Stories High' },
-                { number: '180', label: 'Sky Residences' },
-                { number: '360\u00B0', label: 'Panoramic Views' },
-              ].map((stat) => (
-                <div key={stat.label} style={{ textAlign: 'center' }}>
-                  <span
-                    className="font-display"
-                    style={{
-                      fontSize: '48px',
-                      color: '#0F1729',
-                      display: 'block',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {stat.number}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      letterSpacing: '2px',
-                      color: '#94A3B8',
-                      textTransform: 'uppercase',
-                      marginTop: '6px',
-                      display: 'block',
-                    }}
-                  >
-                    {stat.label}
-                  </span>
-                  <div className="gold-line" style={{ margin: '10px auto 0' }} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Responsive */}
-      <style>{`
-        .concept-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .concept-container {
-            padding: 128px 48px;
-          }
-        }
-        @media (max-width: 768px) {
-          .concept-grid {
-            grid-template-columns: 1fr !important;
-            gap: 32px !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   4. VILLA TYPES
-   ═══════════════════════════════════════════════════════════════ */
-const villaTypes = [
+const VILLA_TYPES = [
   {
-    name: 'SKY PENTHOUSE',
-    tagline: 'The Crown Collection',
-    area: '480 - 620 sqm',
-    beds: '4 + 1 Bedrooms',
-    floors: 'Levels 56 - 62',
-    price: 'From IDR 42B',
+    name: 'Sky Penthouse',
     image: IMAGES.penthouse,
-    features: [
-      'Double-height living hall',
-      'Private rooftop terrace',
-      'Dedicated elevator lobby',
-      'Wine cellar & cigar lounge',
-    ],
+    size: '400 sqm',
+    beds: '4 Bedrooms',
+    features: ['Private rooftop terrace', 'Floor-to-ceiling windows', 'Chef\'s kitchen with Gaggenau', 'Master suite with sky bath', 'Smart home automation'],
+    price: 'From IDR 45B',
   },
   {
-    name: 'SKY DUPLEX',
-    tagline: 'Elevated Living',
-    area: '280 - 380 sqm',
-    beds: '3 + 1 Bedrooms',
-    floors: 'Levels 32 - 55',
-    price: 'From IDR 18B',
+    name: 'Sky Duplex',
     image: IMAGES.duplex,
-    features: [
-      'Two-level living space',
-      'Panoramic floor-to-ceiling glass',
-      'Private sky terrace',
-      'Smart home integration',
-    ],
+    size: '250 sqm',
+    beds: '3 Bedrooms',
+    features: ['Double-height living room', 'Internal staircase design', 'Panoramic corner views', 'Walk-in wine cellar', 'Private elevator access'],
+    price: 'From IDR 28B',
   },
   {
-    name: 'SKY GARDEN SUITE',
-    tagline: 'Nature in the Sky',
-    area: '160 - 240 sqm',
-    beds: '2 + 1 Bedrooms',
-    floors: 'Levels 15 - 31',
-    price: 'From IDR 8.5B',
+    name: 'Sky Garden Suite',
     image: IMAGES.skyGarden,
-    features: [
-      'Wraparound garden terrace',
-      'Outdoor dining pavilion',
-      'Tropical sky landscaping',
-      'Direct pool deck access',
-    ],
+    size: '160 sqm',
+    beds: '2 Bedrooms',
+    features: ['Extended sky garden balcony', 'Open-plan living concept', 'Imported marble finishes', 'Integrated Bose sound', 'Concierge service'],
+    price: 'From IDR 15B',
   },
 ];
 
-function VillaTypes() {
-  const { ref, inView } = useInView(0.05);
-
-  return (
-    <section
-      id="residences"
-      ref={ref}
-      style={{
-        background: '#0F1729',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Subtle background glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '800px',
-          height: '800px',
-          background: 'radial-gradient(circle, rgba(74,163,223,0.06) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '80px 24px',
-          position: 'relative',
-          zIndex: 1,
-        }}
-        className="villa-container"
-      >
-        {/* Section header */}
-        <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-          <span
-            className={inView ? 'animate-fade-in-up' : ''}
-            style={{
-              fontSize: '12px',
-              letterSpacing: '5px',
-              textTransform: 'uppercase',
-              color: '#D4AF37',
-              fontWeight: 500,
-              display: 'block',
-              marginBottom: '16px',
-              opacity: 1,
-            }}
-          >
-            The Residences
-          </span>
-          <h2
-            className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-            style={{
-              fontSize: 'clamp(36px, 5vw, 64px)',
-              color: '#FFFFFF',
-              letterSpacing: '6px',
-              opacity: 1,
-            }}
-          >
-            THREE WAYS TO <span style={{ color: '#D4AF37' }}>TOUCH THE SKY</span>
-          </h2>
-        </div>
-
-        {/* Villa cards grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '32px',
-          }}
-          className="villa-grid"
-        >
-          {villaTypes.map((villa, i) => (
-            <div
-              key={villa.name}
-              className={`glass-card ${inView ? `animate-fade-in-up delay-${(i + 2) * 100}` : ''}`}
-              style={{
-                overflow: 'hidden',
-                opacity: 1,
-              }}
-            >
-              {/* Image */}
-              <div style={{ height: '260px', overflow: 'hidden' }}>
-                <img
-                  src={villa.image}
-                  alt={villa.name}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                  className="img-zoom"
-                />
-              </div>
-
-              {/* Content */}
-              <div style={{ padding: '32px' }}>
-                <span
-                  style={{
-                    fontSize: '11px',
-                    letterSpacing: '3px',
-                    color: '#D4AF37',
-                    textTransform: 'uppercase',
-                    display: 'block',
-                    marginBottom: '10px',
-                  }}
-                >
-                  {villa.tagline}
-                </span>
-                <h3
-                  className="font-display"
-                  style={{
-                    fontSize: '28px',
-                    color: '#FFFFFF',
-                    letterSpacing: '3px',
-                  }}
-                >
-                  {villa.name}
-                </h3>
-                <div className="gold-line" style={{ margin: '16px 0' }} />
-
-                {/* Specs */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '10px',
-                    marginBottom: '20px',
-                  }}
-                >
-                  {[villa.area, villa.beds, villa.floors, villa.price].map((spec) => (
-                    <span
-                      key={spec}
-                      style={{
-                        fontSize: '12px',
-                        color: 'rgba(255,255,255,0.5)',
-                        letterSpacing: '0.5px',
-                      }}
-                    >
-                      {spec}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Features */}
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {villa.features.map((f) => (
-                    <li
-                      key={f}
-                      style={{
-                        fontSize: '13px',
-                        color: 'rgba(255,255,255,0.65)',
-                        padding: '6px 0',
-                        borderBottom: '1px solid rgba(255,255,255,0.06)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                      }}
-                    >
-                      <span style={{ color: '#4AA3DF', fontSize: '8px' }}>&#9670;</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <a
-                  href="#contact"
-                  style={{
-                    display: 'inline-block',
-                    marginTop: '24px',
-                    fontSize: '12px',
-                    letterSpacing: '3px',
-                    textTransform: 'uppercase',
-                    color: '#D4AF37',
-                    textDecoration: 'none',
-                    fontWeight: 500,
-                    transition: 'letter-spacing 0.3s ease',
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.target as HTMLElement).style.letterSpacing = '5px')
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.target as HTMLElement).style.letterSpacing = '3px')
-                  }
-                >
-                  Inquire &rarr;
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Responsive */}
-      <style>{`
-        .villa-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .villa-container {
-            padding: 128px 48px;
-          }
-        }
-        @media (max-width: 1024px) {
-          .villa-grid {
-            grid-template-columns: 1fr !important;
-            gap: 24px !important;
-            max-width: 560px !important;
-            margin: 0 auto !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   5. SKY AMENITIES
-   ═══════════════════════════════════════════════════════════════ */
-const amenities = [
-  {
-    icon: '\u2601',
-    title: 'Infinity Sky Pool',
-    description: 'A cantilevered infinity pool on Level 60, suspended above the clouds with unobstructed views of Jakarta\'s skyline.',
-    level: 'Level 60',
-  },
-  {
-    icon: '\u2605',
-    title: 'Sky Lounge & Bar',
-    description: 'An exclusive rooftop lounge with a signature cocktail bar, panoramic glass walls, and curated live entertainment.',
-    level: 'Level 62',
-  },
-  {
-    icon: '\u2708',
-    title: 'Private Helipad',
-    description: 'Direct helicopter access for residents, providing seamless connectivity to airports and beyond.',
-    level: 'Rooftop',
-  },
-  {
-    icon: '\u25B2',
-    title: 'Private Elevator',
-    description: 'Each Sky Penthouse features a dedicated private elevator with biometric access, opening directly into your residence.',
-    level: 'All Levels',
-  },
-  {
-    icon: '\u2764',
-    title: 'Wellness Sanctuary',
-    description: 'A world-class spa and fitness center with onsen baths, infrared saunas, and personal training suites.',
-    level: 'Level 5-6',
-  },
-  {
-    icon: '\u266B',
-    title: 'Sky Cinema & Lounge',
-    description: 'A private screening room with Dolby Atmos sound, paired with a gentlemen\'s library and business club.',
-    level: 'Level 3',
-  },
+const AMENITIES = [
+  { name: 'Infinity Sky Pool', desc: 'A 50-meter infinity pool on the 60th floor, seemingly merging with the Jakarta skyline.', image: IMAGES.pool },
+  { name: 'Sky Lounge', desc: 'An exclusive residents-only lounge with a curated bar and panoramic sunset views.', image: IMAGES.lounge },
+  { name: 'Helipad Access', desc: 'Private helipad access on the rooftop for direct air transfers across the city.', image: IMAGES.helipad },
+  { name: 'Private Elevator', desc: 'Dedicated high-speed elevators with biometric access to your personal residence.', image: IMAGES.elevator },
+  { name: 'Wellness Spa', desc: 'A holistic wellness center featuring sauna, steam room, and treatment suites.', image: IMAGES.spa },
+  { name: 'Sky Cinema', desc: 'A private 24-seat cinema with Dolby Atmos sound and reclining leather seats.', image: IMAGES.cinema },
 ];
 
-function Amenities() {
-  const { ref, inView } = useInView(0.05);
+const VIEW_DIRECTIONS = [
+  { dir: 'North', letter: 'N', desc: 'Unobstructed views of the Java Sea horizon and Thousand Islands, framed by the northern Jakarta skyline.' },
+  { dir: 'South', letter: 'S', desc: 'The majestic peaks of Mount Salak and Mount Gede rising above morning clouds in breathtaking clarity.' },
+  { dir: 'East', letter: 'E', desc: 'Golden sunrises illuminating the SCBD towers and Mega Kuningan business district.' },
+  { dir: 'West', letter: 'W', desc: 'Spectacular sunsets painting the sky over Senayan Park and the sprawling western cityscape.' },
+];
 
-  return (
-    <section
-      id="amenities"
-      ref={ref}
-      style={{
-        background: '#FFFFFF',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '80px 24px',
-        }}
-        className="amenities-container"
-      >
-        {/* Section header */}
-        <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-          <span
-            className={inView ? 'animate-fade-in-up' : ''}
-            style={{
-              fontSize: '12px',
-              letterSpacing: '5px',
-              textTransform: 'uppercase',
-              color: '#4AA3DF',
-              fontWeight: 500,
-              display: 'block',
-              marginBottom: '16px',
-              opacity: 1,
-            }}
-          >
-            Sky Amenities
-          </span>
-          <h2
-            className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-            style={{
-              fontSize: 'clamp(36px, 5vw, 64px)',
-              color: '#0F1729',
-              letterSpacing: '4px',
-              opacity: 1,
-            }}
-          >
-            ELEVATED <span className="text-gradient-sky">EXPERIENCES</span>
-          </h2>
-        </div>
-
-        {/* Amenities grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '28px',
-          }}
-          className="amenities-grid"
-        >
-          {amenities.map((a, i) => (
-            <div
-              key={a.title}
-              className={`white-card ${inView ? `animate-fade-in-up delay-${(i + 2) * 100}` : ''}`}
-              style={{
-                padding: '36px 32px',
-                opacity: 1,
-              }}
-            >
-              {/* Icon */}
-              <div
-                style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(74,163,223,0.1), rgba(74,163,223,0.05))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  marginBottom: '20px',
-                }}
-              >
-                {a.icon}
-              </div>
-
-              {/* Level badge */}
-              <span
-                style={{
-                  fontSize: '10px',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase',
-                  color: '#4AA3DF',
-                  fontWeight: 600,
-                  display: 'block',
-                  marginBottom: '8px',
-                }}
-              >
-                {a.level}
-              </span>
-
-              <h3
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 600,
-                  color: '#0F1729',
-                  marginBottom: '12px',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                {a.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: '14px',
-                  lineHeight: 1.75,
-                  color: '#475569',
-                }}
-              >
-                {a.description}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Full-width pool image */}
-        <div
-          className={inView ? 'animate-fade-in-up delay-800' : ''}
-          style={{
-            marginTop: '64px',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            opacity: 1,
-          }}
-        >
-          <img
-            src={IMAGES.pool}
-            alt="Infinity sky pool overlooking Jakarta skyline"
-            style={{
-              width: '100%',
-              height: '400px',
-              objectFit: 'cover',
-              display: 'block',
-            }}
-            className="img-zoom"
-          />
-        </div>
-      </div>
-
-      {/* Responsive */}
-      <style>{`
-        .amenities-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .amenities-container {
-            padding: 128px 48px;
-          }
-        }
-        @media (max-width: 1024px) {
-          .amenities-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .amenities-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
+const PROXIMITY = [
+  { place: 'SCBD Business District', time: '3 min' },
+  { place: 'Pacific Place Mall', time: '5 min' },
+  { place: 'MRT Sudirman Station', time: '2 min' },
+  { place: 'Grand Indonesia', time: '7 min' },
+  { place: 'Soekarno-Hatta Airport', time: '35 min' },
+  { place: 'PIK / Ancol Beach', time: '25 min' },
+];
 
 /* ═══════════════════════════════════════════════════════════════
-   6. VIEWS — PANORAMIC CITY VIEWS
+   MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
-function Views() {
-  const { ref, inView } = useInView();
 
-  const viewPoints = [
-    {
-      direction: 'North',
-      vista: 'Monas & Central Jakarta',
-      description: 'Watch the National Monument illuminate at dusk from your living room.',
-    },
-    {
-      direction: 'South',
-      vista: 'Senayan & Mountains',
-      description: 'On clear days, the volcanic peaks of West Java paint the horizon.',
-    },
-    {
-      direction: 'East',
-      vista: 'Sunrise over the City',
-      description: 'Greet every morning with golden light washing across the metropolis.',
-    },
-    {
-      direction: 'West',
-      vista: 'Sunset & Tangerang',
-      description: 'Spectacular sunset views with the western suburbs stretching to the coast.',
-    },
-  ];
+export default function Home() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', villaType: '' });
 
-  return (
-    <section
-      id="views"
-      ref={ref}
-      style={{
-        background: '#0F1729',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Full-width background image with overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-        }}
-      >
-        <img
-          src={IMAGES.nightCity}
-          alt="Panoramic night view of Jakarta"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: 0.25,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to bottom, rgba(15,23,41,0.5) 0%, rgba(15,23,41,0.85) 100%)',
-          }}
-        />
-      </div>
-
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '80px 24px',
-          position: 'relative',
-          zIndex: 1,
-        }}
-        className="views-container"
-      >
-        {/* Section header */}
-        <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-          <span
-            className={inView ? 'animate-fade-in-up' : ''}
-            style={{
-              fontSize: '12px',
-              letterSpacing: '5px',
-              textTransform: 'uppercase',
-              color: '#D4AF37',
-              fontWeight: 500,
-              display: 'block',
-              marginBottom: '16px',
-              opacity: 1,
-            }}
-          >
-            Panoramic Views
-          </span>
-          <h2
-            className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-            style={{
-              fontSize: 'clamp(36px, 5vw, 64px)',
-              color: '#FFFFFF',
-              letterSpacing: '6px',
-              opacity: 1,
-            }}
-          >
-            THE CITY AT YOUR <span style={{ color: '#D4AF37' }}>FEET</span>
-          </h2>
-          <p
-            className={inView ? 'animate-fade-in-up delay-200' : ''}
-            style={{
-              fontSize: '16px',
-              color: 'rgba(255,255,255,0.55)',
-              maxWidth: '600px',
-              margin: '20px auto 0',
-              lineHeight: 1.7,
-              opacity: 1,
-            }}
-          >
-            From 62 stories above, Jakarta transforms into a canvas of light. Every
-            direction reveals a different masterpiece.
-          </p>
-        </div>
-
-        {/* View direction cards */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '24px',
-          }}
-          className="views-grid"
-        >
-          {viewPoints.map((v, i) => (
-            <div
-              key={v.direction}
-              className={`glass-card ${inView ? `animate-fade-in-up delay-${(i + 3) * 100}` : ''}`}
-              style={{
-                padding: '36px 28px',
-                textAlign: 'center',
-                opacity: 1,
-              }}
-            >
-              {/* Compass direction */}
-              <span
-                className="font-display"
-                style={{
-                  fontSize: '48px',
-                  color: '#D4AF37',
-                  display: 'block',
-                  marginBottom: '8px',
-                }}
-              >
-                {v.direction[0]}
-              </span>
-              <span
-                style={{
-                  fontSize: '11px',
-                  letterSpacing: '3px',
-                  color: '#4AA3DF',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  marginBottom: '16px',
-                }}
-              >
-                {v.direction}
-              </span>
-              <h3
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  color: '#FFFFFF',
-                  marginBottom: '12px',
-                }}
-              >
-                {v.vista}
-              </h3>
-              <p
-                style={{
-                  fontSize: '13px',
-                  lineHeight: 1.7,
-                  color: 'rgba(255,255,255,0.55)',
-                }}
-              >
-                {v.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Responsive */}
-      <style>{`
-        .views-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .views-container {
-            padding: 128px 48px;
+  /* Scroll listener for nav */
+  if (typeof window !== 'undefined') {
+    if (!(window as unknown as Record<string, boolean>).__skyvillaScrollInit) {
+      (window as unknown as Record<string, boolean>).__skyvillaScrollInit = true;
+      window.addEventListener('scroll', () => {
+        const nav = document.getElementById('main-nav');
+        if (nav) {
+          if (window.scrollY > 80) {
+            nav.classList.add('bg-white', 'shadow-lg');
+            nav.classList.remove('bg-transparent');
+            nav.querySelectorAll('.nav-text').forEach(el => el.classList.add('!text-navy'));
+            nav.querySelectorAll('.nav-text').forEach(el => el.classList.remove('text-white'));
+          } else {
+            nav.classList.remove('bg-white', 'shadow-lg');
+            nav.classList.add('bg-transparent');
+            nav.querySelectorAll('.nav-text').forEach(el => el.classList.remove('!text-navy'));
+            nav.querySelectorAll('.nav-text').forEach(el => el.classList.add('text-white'));
           }
         }
-        @media (max-width: 1024px) {
-          .views-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .views-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
+      });
+    }
+  }
 
-/* ═══════════════════════════════════════════════════════════════
-   7. LOCATION — SUDIRMAN, JAKARTA CBD
-   ═══════════════════════════════════════════════════════════════ */
-function Location() {
-  const { ref, inView } = useInView();
-
-  const distances = [
-    { place: 'SCBD Complex', time: '3 min walk' },
-    { place: 'Pacific Place Mall', time: '5 min walk' },
-    { place: 'Sudirman MRT Station', time: '2 min walk' },
-    { place: 'Bundaran HI', time: '8 min drive' },
-    { place: 'Halim Airport', time: '25 min drive' },
-    { place: 'Soekarno-Hatta Airport', time: '45 min drive' },
-  ];
-
-  return (
-    <section
-      id="location"
-      ref={ref}
-      style={{
-        background: '#FFFFFF',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1280px',
-          margin: '0 auto',
-          padding: '80px 24px',
-        }}
-        className="location-container"
-      >
-        <div
-          className="location-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '64px',
-            alignItems: 'center',
-          }}
-        >
-          {/* Left — text */}
-          <div>
-            <span
-              className={inView ? 'animate-fade-in-up' : ''}
-              style={{
-                fontSize: '12px',
-                letterSpacing: '5px',
-                color: '#4AA3DF',
-                textTransform: 'uppercase',
-                fontWeight: 500,
-                display: 'block',
-                marginBottom: '16px',
-                opacity: 1,
-              }}
-            >
-              Prime Location
-            </span>
-            <h2
-              className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-              style={{
-                fontSize: 'clamp(36px, 5vw, 56px)',
-                color: '#0F1729',
-                letterSpacing: '4px',
-                lineHeight: 1.1,
-                marginBottom: '12px',
-                opacity: 1,
-              }}
-            >
-              JL. JEND. SUDIRMAN
-            </h2>
-            <p
-              className={inView ? 'animate-fade-in-up delay-200' : ''}
-              style={{
-                fontSize: '16px',
-                color: '#475569',
-                marginBottom: '40px',
-                lineHeight: 1.8,
-                opacity: 1,
-              }}
-            >
-              Positioned at the heart of Jakarta&apos;s golden triangle &mdash; where
-              power, culture, and commerce converge. Jalan Sudirman is more than an
-              address; it is a declaration.
-            </p>
-
-            {/* Distances */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-              {distances.map((d, i) => (
-                <div
-                  key={d.place}
-                  className={inView ? `animate-slide-in-left delay-${(i + 3) * 100}` : ''}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '1px solid rgba(15,23,41,0.08)',
-                    padding: '14px 0',
-                    opacity: 1,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '14px',
-                      color: '#0F1729',
-                      fontWeight: 500,
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    {d.place}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      color: '#4AA3DF',
-                      fontWeight: 500,
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    {d.time}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — city image */}
-          <div
-            className={inView ? 'animate-fade-in-up delay-300' : ''}
-            style={{
-              borderRadius: '20px',
-              overflow: 'hidden',
-              opacity: 1,
-            }}
-          >
-            <img
-              src={IMAGES.cityView}
-              alt="Sudirman CBD area, Jakarta"
-              style={{
-                width: '100%',
-                height: '560px',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              className="img-zoom"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Responsive */}
-      <style>{`
-        .location-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .location-container {
-            padding: 128px 48px;
-          }
-        }
-        @media (max-width: 768px) {
-          .location-grid {
-            grid-template-columns: 1fr !important;
-            gap: 40px !important;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   8. CONTACT / CTA
-   ═══════════════════════════════════════════════════════════════ */
-function Contact() {
-  const { ref, inView } = useInView();
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    alert('Thank you for your interest. Our team will contact you within 24 hours.');
+    setFormData({ name: '', email: '', phone: '', villaType: '' });
   };
 
   return (
-    <section
-      id="contact"
-      ref={ref}
-      style={{
-        background: '#0F1729',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Radial glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '1000px',
-          height: '600px',
-          background: 'radial-gradient(ellipse, rgba(74,163,223,0.08) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
+    <main className="overflow-x-hidden">
 
-      <div
-        style={{
-          maxWidth: '640px',
-          margin: '0 auto',
-          padding: '80px 24px',
-          position: 'relative',
-          zIndex: 1,
-          textAlign: 'center',
-        }}
-        className="contact-container"
+      {/* ─────────────────── NAVIGATION ─────────────────── */}
+      <nav
+        id="main-nav"
+        className="fixed top-0 left-0 w-full z-50 bg-transparent transition-all duration-500"
       >
-        {/* Heading */}
-        <span
-          className={inView ? 'animate-fade-in-up' : ''}
-          style={{
-            fontSize: '12px',
-            letterSpacing: '5px',
-            textTransform: 'uppercase',
-            color: '#D4AF37',
-            fontWeight: 500,
-            display: 'block',
-            marginBottom: '16px',
-            opacity: 1,
-          }}
-        >
-          Register Interest
-        </span>
-        <h2
-          className={`font-display ${inView ? 'animate-fade-in-up delay-100' : ''}`}
-          style={{
-            fontSize: 'clamp(40px, 6vw, 72px)',
-            color: '#FFFFFF',
-            letterSpacing: '6px',
-            lineHeight: 1.1,
-            opacity: 1,
-          }}
-        >
-          CLAIM YOUR <span style={{ color: '#D4AF37' }}>SKY</span>
-        </h2>
-        <p
-          className={inView ? 'animate-fade-in-up delay-200' : ''}
-          style={{
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '15px',
-            letterSpacing: '1px',
-            marginTop: '16px',
-            marginBottom: '48px',
-            lineHeight: 1.7,
-            opacity: 1,
-          }}
-        >
-          Join an exclusive community of visionaries. Register for a private preview
-          of Skyvilla Sudirman.
-        </p>
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
+          {/* Logo */}
+          <a href="#" className="flex items-baseline gap-1">
+            <span className="font-heading text-2xl font-bold text-gold tracking-wide">SKYVILLA</span>
+            <span className="nav-text font-heading text-lg font-light text-white tracking-widest">SUDIRMAN</span>
+          </a>
 
-        {!submitted ? (
-          <form
-            onSubmit={handleSubmit}
-            className={inView ? 'animate-fade-in-up delay-300' : ''}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              textAlign: 'left',
-              opacity: 1,
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Full Name"
-              required
-              className="sky-input"
-            />
-            <input
-              type="email"
-              placeholder="Email Address"
-              required
-              className="sky-input"
-            />
-            <input
-              type="tel"
-              placeholder="Phone / WhatsApp"
-              required
-              className="sky-input"
-            />
-            <select
-              className="sky-input"
-              defaultValue=""
-              style={{ cursor: 'pointer' }}
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex items-center gap-8">
+            {NAV_LINKS.map(link => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="nav-link nav-text text-white text-sm font-medium tracking-wide uppercase"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a
+              href="#contact"
+              className="ml-4 bg-sky hover:bg-sky-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide transition-colors duration-300"
             >
-              <option value="" disabled>Interested In</option>
-              <option value="penthouse">Sky Penthouse</option>
-              <option value="duplex">Sky Duplex</option>
-              <option value="garden">Sky Garden Suite</option>
-            </select>
+              Schedule Visit
+            </a>
+          </div>
 
-            <button
-              type="submit"
-              style={{
-                marginTop: '8px',
-                padding: '18px 40px',
-                background: 'linear-gradient(135deg, #D4AF37, #E8CC6E)',
-                color: '#0F1729',
-                border: 'none',
-                fontSize: '14px',
-                fontFamily: "'Inter', sans-serif",
-                letterSpacing: '3px',
-                textTransform: 'uppercase',
-                fontWeight: 600,
-                cursor: 'pointer',
-                borderRadius: '50px',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                alignSelf: 'center',
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.transform = 'scale(1.04)';
-                (e.target as HTMLElement).style.boxShadow =
-                  '0 8px 32px rgba(212,175,55,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.transform = 'scale(1)';
-                (e.target as HTMLElement).style.boxShadow = 'none';
-              }}
-            >
-              Request Preview
-            </button>
-          </form>
-        ) : (
-          <div
-            className="animate-fade-in-up"
-            style={{ padding: '40px 0' }}
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="lg:hidden flex flex-col gap-1.5 p-2"
+            aria-label="Menu"
           >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #D4AF37, #E8CC6E)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 24px',
-                fontSize: '28px',
-                color: '#0F1729',
-              }}
-            >
-              &#10003;
+            <span className={`block w-6 h-0.5 bg-gold transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-gold transition-all duration-300 ${mobileOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-6 h-0.5 bg-gold transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="lg:hidden bg-navy/98 backdrop-blur-lg border-t border-white/10">
+            <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-6">
+              {NAV_LINKS.map(link => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-white text-lg font-medium tracking-wide uppercase hover:text-gold transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href="#contact"
+                onClick={() => setMobileOpen(false)}
+                className="bg-sky text-white px-6 py-3 rounded-full text-center font-semibold tracking-wide mt-2"
+              >
+                Schedule Visit
+              </a>
             </div>
-            <p
-              className="font-display"
-              style={{
-                fontSize: '32px',
-                color: '#FFFFFF',
-                letterSpacing: '4px',
-              }}
-            >
-              THE SKY AWAITS
-            </p>
-            <p
-              style={{
-                color: 'rgba(255,255,255,0.5)',
-                marginTop: '12px',
-                fontSize: '14px',
-                letterSpacing: '1px',
-              }}
-            >
-              Our team will reach out within 24 hours to arrange your private viewing.
-            </p>
           </div>
         )}
-      </div>
+      </nav>
 
-      {/* Responsive */}
-      <style>{`
-        .contact-container {
-          padding: 80px 24px;
-        }
-        @media (min-width: 1024px) {
-          .contact-container {
-            padding: 128px 24px;
-          }
-        }
-      `}</style>
-    </section>
-  );
-}
 
-/* ═══════════════════════════════════════════════════════════════
-   9. FOOTER
-   ═══════════════════════════════════════════════════════════════ */
-function Footer() {
-  const socials = [
-    { label: 'Instagram', href: '#' },
-    { label: 'LinkedIn', href: '#' },
-    { label: 'WhatsApp', href: '#' },
-  ];
+      {/* ─────────────────── HERO ─────────────────── */}
+      <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img
+            src={IMAGES.hero}
+            alt="Skyvilla Sudirman luxury residence"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/20" />
+        </div>
 
-  return (
-    <footer
-      style={{
-        background: '#0A0F1E',
-        padding: '56px 24px 28px',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: '32px',
-          maxWidth: '1280px',
-          margin: '0 auto',
-        }}
-      >
-        {/* Left */}
-        <div>
-          <span
-            className="font-display"
-            style={{
-              fontSize: '24px',
-              color: '#FFFFFF',
-              letterSpacing: '8px',
-            }}
-          >
-            <span style={{ color: '#D4AF37' }}>SKY</span>VILLA
-          </span>
-          <p
-            style={{
-              fontSize: '13px',
-              color: 'rgba(255,255,255,0.35)',
-              marginTop: '14px',
-              lineHeight: 1.7,
-              maxWidth: '280px',
-            }}
-          >
-            Jl. Jend. Sudirman Kav. 52-53
-            <br />
-            SCBD, Jakarta Selatan 12190
-            <br />
-            Indonesia
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <p className="text-gold text-sm md:text-base font-semibold tracking-[0.35em] uppercase mb-6">
+            Above the Clouds
           </p>
-        </div>
-
-        {/* Center — links */}
-        <div style={{ display: 'flex', gap: '28px' }}>
-          {socials.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              className="nav-link"
-              style={{
-                color: 'rgba(255,255,255,0.5)',
-                textDecoration: 'none',
-                fontSize: '12px',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-              }}
-            >
-              {s.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Right — contact info */}
-        <div style={{ textAlign: 'right' }}>
-          <p
-            style={{
-              fontSize: '13px',
-              color: 'rgba(255,255,255,0.35)',
-              lineHeight: 1.7,
-            }}
-          >
-            info@skyvillasudirman.com
-            <br />
-            +62 21 5790 8888
+          <h1 className="font-heading text-white text-7xl md:text-8xl lg:text-9xl font-bold leading-none mb-2">
+            SKYVILLA
+          </h1>
+          <p className="font-heading text-white/70 text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.5em] mb-8">
+            SUDIRMAN
           </p>
-        </div>
-      </div>
-
-      {/* Bottom bar */}
-      <div
-        style={{
-          textAlign: 'center',
-          marginTop: '48px',
-          paddingTop: '20px',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
-        }}
-      >
-        <p
-          style={{
-            fontSize: '11px',
-            color: 'rgba(255,255,255,0.25)',
-            letterSpacing: '1px',
-          }}
-        >
-          &copy; 2026 Skyvilla Sudirman. All Rights Reserved.
-        </p>
-        <p
-          style={{
-            fontSize: '11px',
-            color: 'rgba(255,255,255,0.25)',
-            letterSpacing: '1px',
-            marginTop: '8px',
-          }}
-        >
-          Made with{' '}
-          <span style={{ color: '#D4AF37' }}>&hearts;</span> by{' '}
+          <p className="text-white/60 text-lg md:text-xl font-light max-w-xl mx-auto mb-10">
+            Penthouse Living Redefined
+          </p>
           <a
-            href="https://creativism.id"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: '#D4AF37',
-              textDecoration: 'none',
-              fontWeight: 500,
-            }}
+            href="#contact"
+            className="inline-block bg-gold hover:bg-gold-dark text-navy-dark px-10 py-4 rounded-full text-base font-bold tracking-wider uppercase transition-all duration-300 hover:shadow-[0_8px_32px_rgba(212,175,55,0.4)]"
           >
-            Creativism
+            Discover Your Sky
           </a>
-        </p>
-      </div>
-    </footer>
-  );
-}
+        </div>
 
-/* ═══════════════════════════════════════════════════════════════
-   PAGE ASSEMBLY
-   ═══════════════════════════════════════════════════════════════ */
-export default function Home() {
-  return (
-    <main>
-      <Navigation />
-      <Hero />
-      <Concept />
-      <VillaTypes />
-      <Amenities />
-      <Views />
-      <Location />
-      <Contact />
-      <Footer />
+        {/* Bottom Stats */}
+        <div className="absolute bottom-0 left-0 w-full bg-navy/80 backdrop-blur-md border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0">
+            {HERO_STATS.map((stat, i) => (
+              <div key={i} className="text-center md:border-r md:last:border-r-0 border-white/10">
+                <p className="font-heading text-gold text-3xl md:text-4xl font-bold">{stat.value}</p>
+                <p className="text-white/50 text-sm font-medium tracking-wider uppercase mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── CONCEPT ─────────────────── */}
+      <section id="concept" className="bg-white py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            {/* Left Image */}
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <img
+                  src={IMAGES.concept}
+                  alt="Skyvilla interior concept"
+                  className="w-full h-[500px] object-cover"
+                />
+              </div>
+              {/* Floating accent */}
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gold/10 rounded-2xl -z-10" />
+              <div className="absolute -top-6 -left-6 w-24 h-24 border-2 border-sky/20 rounded-2xl -z-10" />
+            </div>
+
+            {/* Right Content */}
+            <div>
+              <div className="w-12 h-0.5 bg-gold mb-6" />
+              <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">The Vision</p>
+              <h2 className="font-heading text-navy text-4xl md:text-5xl font-bold leading-tight mb-6">
+                Living Above <br />the Clouds
+              </h2>
+              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                Skyvilla Sudirman reimagines luxury living at 62 stories above Jakarta&apos;s most prestigious
+                boulevard. Every residence is a sanctuary in the sky &mdash; where panoramic horizons meet
+                uncompromising craftsmanship, and where the city&apos;s energy transforms into serene elevation.
+              </p>
+              <p className="text-gray-500 leading-relaxed mb-10">
+                Designed by world-renowned architects, each sky villa features floor-to-ceiling windows,
+                private terraces, and bespoke interiors that celebrate the art of living well. This is not
+                merely an address &mdash; it is a statement above everything.
+              </p>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-8">
+                <div>
+                  <p className="font-heading text-navy text-3xl font-bold">62</p>
+                  <p className="text-gray-400 text-sm mt-1">Stories Above Sudirman</p>
+                </div>
+                <div>
+                  <p className="font-heading text-navy text-3xl font-bold">400</p>
+                  <p className="text-gray-400 text-sm mt-1">sqm Largest Unit</p>
+                </div>
+                <div>
+                  <p className="font-heading text-navy text-3xl font-bold">5★</p>
+                  <p className="text-gray-400 text-sm mt-1">Hotel-Grade Service</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── SKY VILLAS ─────────────────── */}
+      <section id="villas" className="bg-navy py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="w-12 h-0.5 bg-gold mx-auto mb-6" />
+            <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">The Residences</p>
+            <h2 className="font-heading text-white text-4xl md:text-5xl font-bold">Sky Villas Collection</h2>
+          </div>
+
+          {/* Cards */}
+          <div className="grid md:grid-cols-3 gap-8">
+            {VILLA_TYPES.map((villa, i) => (
+              <div key={i} className="glass-card overflow-hidden group">
+                {/* Image */}
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={villa.image}
+                    alt={villa.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <h3 className="font-heading text-white text-2xl font-bold">{villa.name}</h3>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-sky text-sm font-medium">{villa.size}</span>
+                      <span className="w-1 h-1 bg-sky/50 rounded-full" />
+                      <span className="text-sky text-sm font-medium">{villa.beds}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <ul className="space-y-3 mb-6">
+                    {villa.features.map((feat, j) => (
+                      <li key={j} className="flex items-start gap-3 text-white/70 text-sm">
+                        <span className="text-gold mt-0.5">&#10003;</span>
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="border-t border-white/10 pt-5 flex items-center justify-between">
+                    <span className="text-gold font-heading text-lg font-bold">{villa.price}</span>
+                    <a
+                      href="#contact"
+                      className="text-sky hover:text-sky-light text-sm font-semibold tracking-wide uppercase transition-colors"
+                    >
+                      Inquire &rarr;
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── AMENITIES ─────────────────── */}
+      <section id="amenities" className="bg-white py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="w-12 h-0.5 bg-gold mx-auto mb-6" />
+            <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">World-Class Living</p>
+            <h2 className="font-heading text-navy text-4xl md:text-5xl font-bold">Sky Amenities</h2>
+          </div>
+
+          {/* Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {AMENITIES.map((a, i) => (
+              <div key={i} className="white-card overflow-hidden group">
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={a.image}
+                    alt={a.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent" />
+                </div>
+                <div className="p-6">
+                  <h3 className="font-heading text-navy text-xl font-bold mb-2">{a.name}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{a.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── PANORAMIC VIEWS ─────────────────── */}
+      <section id="views" className="bg-navy py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="w-12 h-0.5 bg-gold mx-auto mb-6" />
+            <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">Every Direction</p>
+            <h2 className="font-heading text-white text-4xl md:text-5xl font-bold">Panoramic Views</h2>
+          </div>
+
+          {/* Compass + Direction Cards */}
+          <div className="grid lg:grid-cols-5 gap-8 items-center">
+            {/* Direction cards left */}
+            <div className="lg:col-span-2 space-y-6">
+              {VIEW_DIRECTIONS.slice(0, 2).map((v, i) => (
+                <div key={i} className="glass-card p-6">
+                  <div className="flex items-center gap-4 mb-3">
+                    <span className="font-heading text-gold text-3xl font-bold">{v.letter}</span>
+                    <h3 className="font-heading text-white text-xl font-bold">{v.dir}</h3>
+                  </div>
+                  <p className="text-white/60 text-sm leading-relaxed">{v.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Center compass */}
+            <div className="flex justify-center items-center">
+              <div className="relative w-48 h-48 md:w-56 md:h-56">
+                <div className="absolute inset-0 rounded-full border-2 border-gold/30" />
+                <div className="absolute inset-4 rounded-full border border-white/10" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative w-full h-full">
+                    <span className="absolute top-2 left-1/2 -translate-x-1/2 font-heading text-gold text-2xl font-bold">N</span>
+                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 font-heading text-gold text-2xl font-bold">S</span>
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 font-heading text-gold text-2xl font-bold">W</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 font-heading text-gold text-2xl font-bold">E</span>
+                    {/* Cross lines */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-3/4 bg-gradient-to-b from-gold/60 via-gold/20 to-gold/60" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-0.5 bg-gradient-to-r from-gold/60 via-gold/20 to-gold/60" />
+                    {/* Center dot */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-gold rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Direction cards right */}
+            <div className="lg:col-span-2 space-y-6">
+              {VIEW_DIRECTIONS.slice(2).map((v, i) => (
+                <div key={i} className="glass-card p-6">
+                  <div className="flex items-center gap-4 mb-3">
+                    <span className="font-heading text-gold text-3xl font-bold">{v.letter}</span>
+                    <h3 className="font-heading text-white text-xl font-bold">{v.dir}</h3>
+                  </div>
+                  <p className="text-white/60 text-sm leading-relaxed">{v.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── LOCATION ─────────────────── */}
+      <section id="location" className="bg-white py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            {/* Left Content */}
+            <div>
+              <div className="w-12 h-0.5 bg-gold mb-6" />
+              <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">Prime Location</p>
+              <h2 className="font-heading text-navy text-4xl md:text-5xl font-bold leading-tight mb-6">
+                The Heart of <br />Jakarta&apos;s CBD
+              </h2>
+              <p className="text-gray-500 leading-relaxed mb-10">
+                Positioned on Jalan Jenderal Sudirman, Indonesia&apos;s most iconic boulevard, Skyvilla
+                Sudirman places you at the nexus of commerce, culture, and connectivity.
+              </p>
+
+              {/* Proximity List */}
+              <div className="space-y-5">
+                {PROXIMITY.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-b-0">
+                    <div className="flex items-center gap-4">
+                      <div className="w-2 h-2 bg-sky rounded-full" />
+                      <span className="text-navy font-medium">{p.place}</span>
+                    </div>
+                    <span className="text-gold font-heading font-bold text-lg">{p.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Image */}
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <img
+                  src={IMAGES.cityView}
+                  alt="Jakarta cityscape near Sudirman"
+                  className="w-full h-[500px] object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-sky/10 rounded-2xl -z-10" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── CONTACT ─────────────────── */}
+      <section id="contact" className="bg-navy py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <div className="w-12 h-0.5 bg-gold mx-auto mb-6" />
+            <p className="text-sky text-sm font-semibold tracking-[0.2em] uppercase mb-4">Get in Touch</p>
+            <h2 className="font-heading text-white text-4xl md:text-5xl font-bold">Schedule a Private Viewing</h2>
+          </div>
+
+          {/* Form Card */}
+          <div className="max-w-2xl mx-auto glass-card-strong p-8 md:p-12">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-white/60 text-sm font-medium mb-2">Full Name</label>
+                <input
+                  type="text"
+                  className="sky-input"
+                  placeholder="Your full name"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-white/60 text-sm font-medium mb-2">Email</label>
+                  <input
+                    type="email"
+                    className="sky-input"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/60 text-sm font-medium mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    className="sky-input"
+                    placeholder="+62 xxx xxxx xxxx"
+                    value={formData.phone}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-white/60 text-sm font-medium mb-2">Villa Type</label>
+                <select
+                  className="sky-input appearance-none cursor-pointer"
+                  value={formData.villaType}
+                  onChange={e => setFormData({ ...formData, villaType: e.target.value })}
+                  required
+                >
+                  <option value="" className="bg-navy">Select a residence type</option>
+                  <option value="sky-penthouse" className="bg-navy">Sky Penthouse (400 sqm)</option>
+                  <option value="sky-duplex" className="bg-navy">Sky Duplex (250 sqm)</option>
+                  <option value="sky-garden" className="bg-navy">Sky Garden Suite (160 sqm)</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gold hover:bg-gold-dark text-navy-dark py-4 rounded-full font-bold text-base tracking-wider uppercase transition-all duration-300 hover:shadow-[0_8px_32px_rgba(212,175,55,0.4)] mt-4"
+              >
+                Request Private Viewing
+              </button>
+            </form>
+          </div>
+
+          {/* Contact Info */}
+          <div className="grid md:grid-cols-3 gap-8 mt-16 text-center">
+            <div>
+              <p className="text-gold font-heading text-lg font-bold mb-2">Sales Gallery</p>
+              <p className="text-white/50 text-sm">Jl. Jend. Sudirman Kav. 52-53</p>
+              <p className="text-white/50 text-sm">Jakarta Selatan 12190</p>
+            </div>
+            <div>
+              <p className="text-gold font-heading text-lg font-bold mb-2">Enquiries</p>
+              <p className="text-white/50 text-sm">+62 21 5099 8888</p>
+              <p className="text-white/50 text-sm">info@skyvillasudirman.com</p>
+            </div>
+            <div>
+              <p className="text-gold font-heading text-lg font-bold mb-2">Viewing Hours</p>
+              <p className="text-white/50 text-sm">Monday &ndash; Saturday</p>
+              <p className="text-white/50 text-sm">10:00 AM &ndash; 6:00 PM</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────────────────── FOOTER ─────────────────── */}
+      <footer className="bg-navy-dark py-16 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          <div className="grid md:grid-cols-3 gap-12 mb-12">
+            {/* Brand */}
+            <div>
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="font-heading text-2xl font-bold text-gold">SKYVILLA</span>
+                <span className="font-heading text-lg font-light text-white/50 tracking-widest">SUDIRMAN</span>
+              </div>
+              <p className="text-white/40 text-sm leading-relaxed">
+                The pinnacle of luxury living in Jakarta. 62 stories of unparalleled elegance above the city&apos;s most prestigious address.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-gold font-heading text-base font-bold mb-4 tracking-wider uppercase">Explore</h4>
+              <div className="space-y-3">
+                {NAV_LINKS.map(link => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="block text-white/40 text-sm hover:text-gold transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-gold font-heading text-base font-bold mb-4 tracking-wider uppercase">Legal</h4>
+              <div className="space-y-3">
+                <a href="#" className="block text-white/40 text-sm hover:text-gold transition-colors">Privacy Policy</a>
+                <a href="#" className="block text-white/40 text-sm hover:text-gold transition-colors">Terms of Service</a>
+                <a href="#" className="block text-white/40 text-sm hover:text-gold transition-colors">Cookie Preferences</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-white/30 text-xs">
+              &copy; 2026 Skyvilla Sudirman. All rights reserved. Images for illustration purposes only.
+            </p>
+            <p className="text-white/30 text-xs">
+              Made with &#9829; by <a href="https://creativism.id" target="_blank" rel="noopener noreferrer" className="text-gold/60 hover:text-gold transition-colors">Creativism</a>
+            </p>
+          </div>
+        </div>
+      </footer>
+
     </main>
   );
 }

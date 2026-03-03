@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Skyvilla Sudirman | 62 Stories Above the Ordinary",
+  title: "Skyvilla Sudirman | Sky-High Luxury Living in Jakarta",
   description:
-    "Skyvilla Sudirman — Jakarta's most daring residential tower. 62 floors of bold luxury in the heart of SCBD. Sky Penthouses, Infinity Pool, and unmatched city views.",
+    "Skyvilla Sudirman — Private villas in the sky above Jakarta's most prestigious boulevard. 62 stories of panoramic luxury with Sky Penthouses, Infinity Pool, and Helipad.",
   keywords:
-    "Skyvilla Sudirman, luxury apartment Jakarta, SCBD residence, sky penthouse, premium living Jakarta",
+    "Skyvilla Sudirman, luxury sky villa Jakarta, SCBD penthouse, sky garden residence, premium living Jakarta, Sudirman CBD",
 };
 
 export default function RootLayout({

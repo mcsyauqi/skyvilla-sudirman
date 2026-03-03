@@ -405,7 +405,7 @@ function Vision() {
             fontSize: 'clamp(40px, 6vw, 72px)',
             lineHeight: 1.05,
             color: '#0D0D0D',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           WE DON&apos;T BUILD APARTMENTS.
@@ -416,7 +416,7 @@ function Vision() {
             fontSize: 'clamp(40px, 6vw, 72px)',
             lineHeight: 1.05,
             color: '#E63946',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           WE BUILD STATEMENTS.
@@ -438,7 +438,7 @@ function Vision() {
               fontSize: '16px',
               lineHeight: 1.8,
               color: '#333333',
-              opacity: inView ? 1 : 0,
+              opacity: 1,
             }}
           >
             Skyvilla Sudirman rises 62 stories above Jakarta&apos;s most
@@ -452,7 +452,7 @@ function Vision() {
               fontSize: '16px',
               lineHeight: 1.8,
               color: '#333333',
-              opacity: inView ? 1 : 0,
+              opacity: 1,
             }}
           >
             Every line, every material, every view has been engineered to
@@ -481,7 +481,7 @@ function Vision() {
               className={inView ? `animate-fade-in-up delay-${(i + 5) * 100}` : ''}
               style={{
                 textAlign: 'center',
-                opacity: inView ? 1 : 0,
+                opacity: 1,
               }}
             >
               <span
@@ -598,7 +598,7 @@ function Residences() {
             fontSize: 'clamp(36px, 5vw, 56px)',
             color: '#FFFFFF',
             letterSpacing: '4px',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           THE <span style={{ color: '#E63946' }}>RESIDENCES</span>
@@ -782,7 +782,7 @@ function ResidenceCard({
         display: 'flex',
         flexDirection: r.imageLeft ? 'row' : 'row-reverse',
         marginBottom: index < residences.length - 1 ? '80px' : 0,
-        opacity: visible ? 1 : 0,
+        opacity: 1,
       }}
     >
       {imageBlock}
@@ -839,7 +839,7 @@ function Amenities() {
             fontSize: 'clamp(36px, 5vw, 56px)',
             color: '#0D0D0D',
             letterSpacing: '4px',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           WORLD-CLASS{' '}
@@ -864,7 +864,7 @@ function Amenities() {
             className={inView ? `animate-fade-in-up delay-${(i + 2) * 100}` : ''}
             style={{
               textAlign: 'center',
-              opacity: inView ? 1 : 0,
+              opacity: 1,
             }}
           >
             <div
@@ -994,7 +994,7 @@ function Location() {
             color: '#E63946',
             textTransform: 'uppercase',
             marginBottom: '16px',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           Prime Location
@@ -1007,7 +1007,7 @@ function Location() {
             letterSpacing: '4px',
             lineHeight: 1.1,
             marginBottom: '12px',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           JL. JEND. SUDIRMAN
@@ -1019,7 +1019,7 @@ function Location() {
             color: 'rgba(255,255,255,0.6)',
             marginBottom: '40px',
             lineHeight: 1.7,
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           Positioned at the epicenter of Jakarta&apos;s golden triangle — where
@@ -1039,7 +1039,7 @@ function Location() {
                 alignItems: 'center',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 paddingBottom: '12px',
-                opacity: inView ? 1 : 0,
+                opacity: 1,
               }}
             >
               <span
@@ -1163,7 +1163,7 @@ function Contact() {
             letterSpacing: '6px',
             textAlign: 'center',
             lineHeight: 1.1,
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           READY TO RISE?
@@ -1177,7 +1177,7 @@ function Contact() {
             letterSpacing: '1px',
             marginTop: '16px',
             marginBottom: '48px',
-            opacity: inView ? 1 : 0,
+            opacity: 1,
           }}
         >
           Register your interest for an exclusive preview.
@@ -1191,7 +1191,7 @@ function Contact() {
               display: 'flex',
               flexDirection: 'column',
               gap: '24px',
-              opacity: inView ? 1 : 0,
+              opacity: 1,
             }}
           >
             <input
